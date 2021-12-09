@@ -59,12 +59,14 @@ def callback_query(call):
         subject_name = call.data[1:]
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
         markup.row("Ma'ruza", "Laboratoriya")
+        markup.row("🔙Ortga")
         bot.answer_callback_query(call.id, "O'zingizga kerak bo'limni tanlang")    
         bot.send_message(call.message.chat.id, "O'zingizga kerak bo'limni tanlang", reply_markup=markup)
         bot.register_next_step_handler(call.message, choose, subject_name)
     elif call.data[0] == "*":
         data = call.data.split('@')
         theme_number = int(data[0][1:])
+        # markup = types
         subject_name = data[1]
         subject = Subjects.objects.filter(name = subject_name).get()
         laboratories = Laboratories.objects.filter(subject=subject).all()
@@ -97,14 +99,35 @@ def callback_query(call):
 def any_message(message):
     text = message.text
     chat_id = message.from_user.id
-    if (message.contact != None):
+    if message.text == "🔙Ortga":
+        _count = Profile.objects.filter(external_id=message.from_user.id).count()
+        print(_count)
+        if (_count == 0):
+            keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+            button_phone = types.KeyboardButton(text="Telefon raqamni yuborish", request_contact=True)
+            keyboard.add(button_phone)
+            bot.send_message(message.chat.id, "Iltimos botdan to\'liq foydalanish uchun telefon raqamingizni yuboring",
+                             reply_markup=keyboard)
+            
+        else:
+            u_id = message.from_user.id
+            chat_id=message.chat.id
+            data = Profile.objects.filter(external_id = u_id).get()
+            subjects = Subjects.objects.filter(semestr = data.semestr).filter(area = data.area).all()
+            markup = types.InlineKeyboardMarkup()
+            for subject in subjects:
+                item = types.InlineKeyboardButton(subject.name, callback_data=f"#{subject.name}")
+                markup.add(item)
+            bot.send_message(message.chat.id,"Sizda quyidagi fanlar mavjud:", reply_markup=markup)
+
+    elif (message.contact != None):
         try:
             phone_number = str(message.contact.phone_number)
             p, _ = Profile.objects.get_or_create(
                     external_id=chat_id,
                     defaults={
                     'name': message.from_user.first_name,
-                    'surname':message.from_user.last_name,
+                    'surname':"surname",
                     'phone':phone_number,
                     'semestr':'1',
                     'role':'ST',
@@ -116,7 +139,7 @@ def any_message(message):
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
             for faculty in Faculty.objects.all():
                 markup.row(faculty.name)
-
+            markup.row("🔙Ortga")
             bot.send_message(message.chat.id, "<i>Fakultet</i>ingizni tanlang:", parse_mode="html", reply_markup = markup)
             bot.register_next_step_handler(message, set_faculty)
                                                     
@@ -124,6 +147,27 @@ def any_message(message):
             bot.send_message(message.from_user.id, e)                                                    
 
 def set_faculty(message):
+    if message.text == "🔙Ortga":
+        _count = Profile.objects.filter(external_id=message.from_user.id).count()
+        print(_count)
+        if (_count == 0):
+            keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+            button_phone = types.KeyboardButton(text="Telefon raqamni yuborish", request_contact=True)
+            keyboard.add(button_phone)
+            bot.send_message(message.chat.id, "Iltimos botdan to\'liq foydalanish uchun telefon raqamingizni yuboring",
+                             reply_markup=keyboard)
+            
+        else:
+            u_id = message.from_user.id
+            chat_id=message.chat.id
+            data = Profile.objects.filter(external_id = u_id).get()
+            subjects = Subjects.objects.filter(semestr = data.semestr).filter(area = data.area).all()
+            markup = types.InlineKeyboardMarkup()
+            for subject in subjects:
+                item = types.InlineKeyboardButton(subject.name, callback_data=f"#{subject.name}")
+                markup.add(item)
+            bot.send_message(message.chat.id,"Sizda quyidagi fanlar mavjud:", reply_markup=markup)
+    
     u_id = message.from_user.id
     faculty_name=Faculty.objects.filter(name=message.text).get()
     if faculty_name:
@@ -143,14 +187,36 @@ def set_faculty(message):
 
 
 def set_area(message):
+    if message.text == "🔙Ortga":
+        _count = Profile.objects.filter(external_id=message.from_user.id).count()
+        print(_count)
+        if (_count == 0):
+            keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+            button_phone = types.KeyboardButton(text="Telefon raqamni yuborish", request_contact=True)
+            keyboard.add(button_phone)
+            bot.send_message(message.chat.id, "Iltimos botdan to\'liq foydalanish uchun telefon raqamingizni yuboring",
+                             reply_markup=keyboard)
+            
+        else:
+            u_id = message.from_user.id
+            chat_id=message.chat.id
+            data = Profile.objects.filter(external_id = u_id).get()
+            subjects = Subjects.objects.filter(semestr = data.semestr).filter(area = data.area).all()
+            markup = types.InlineKeyboardMarkup()
+            for subject in subjects:
+                item = types.InlineKeyboardButton(subject.name, callback_data=f"#{subject.name}")
+                markup.add(item)
+            bot.send_message(message.chat.id,"Sizda quyidagi fanlar mavjud:", reply_markup=markup)    
     u_id = message.from_user.id
     area_name=Area.objects.filter(name=message.text).get()
+    
     if area_name:
         Profile.objects.filter(external_id=u_id).update(area=area_name)
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
         markup.row("1","2","3")
         markup.row("4","5","6")
         markup.row("7","8")
+        markup.row("🔙Ortga")
     
         bot.send_message(message.chat.id, "<i>O'qiyotgan semestr</i>ingizni tanlang:", parse_mode="html", reply_markup = markup)
         bot.register_next_step_handler(message, set_semestr)
@@ -159,6 +225,7 @@ def set_area(message):
         for faculty in Faculty.objects.all():
             markup.row(faculty.name)
 
+        markup.row("🔙Ortga")
         bot.send_message(message.chat.id, "Siz noto'g'ri ko'rinishdagi javob yubordingiz.\nIltimos<i>Yo'nalish</i>ingizni tanlang:", parse_mode="html", reply_markup = markup)
         bot.register_next_step_handler(message, set_area)
 
@@ -188,6 +255,7 @@ def set_semestr(message):
         markup.row("1","2","3")
         markup.row("4","5","6")
         markup.row("7","8")
+        markup.row("🔙Ortga")
         bot.send_message(message.chat.id, "<i>O'qiyotgan semestr</i>xato kiritdingiz.Iltimos qaytadan tanlang:", parse_mode="html", reply_markup = markup)
         bot.register_next_step_handler(message, set_semestr)
 
@@ -227,6 +295,7 @@ def choose(message, subject_name):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
         del_mes(message)
         markup.row("Ma'ruza", "Laboratoriya")
+        markup.row("🔙Ortga")
         bot.send_message(u_id, "<b>Siz aniqlanmagan turdagi javob qaytardingiz</b>\nIltimos O'zingizga kerak bo'limni tanlang!", reply_markup=markup, parse_mode='html')
         bot.register_next_step_handler(message, choose)   
 

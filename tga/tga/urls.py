@@ -18,6 +18,10 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
+admin.site.site_header = "Darslik Admin"
+admin.site.site_title = "Darslik Admin Portal"
+admin.site.index_title = "Welcome to Darslik Admin Portal"
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
