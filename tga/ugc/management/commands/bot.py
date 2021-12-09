@@ -303,4 +303,4 @@ def choose(message, subject_name):
 
 
 
-bot.infinity_polling()
+#bot.infinity_polling()
