@@ -25,7 +25,9 @@ SECRET_KEY = '!k5g2b^@qmkxmbnt1ooc3%)yuryyka-j7@_gf3ws#k%q5o+b9r'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+		'*'
+		]
 
 
 # Application definition
@@ -117,6 +119,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 MEDIAFILES_DIRS = (
   os.path.join(BASE_DIR, 'media'),
 )
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 
 
