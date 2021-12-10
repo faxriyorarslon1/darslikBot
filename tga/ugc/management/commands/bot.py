@@ -2,8 +2,52 @@ from django.conf import settings
 from ugc.models import Profile, Faculty, Area, Subjects, Lectures, Laboratories
 import telebot
 from telebot import types
+import logging
+import ssl
+
+
+WEBHOOK_HOST = 'ip-172-31-23-118.us-east-2.compute.internal'
+WEBHOOK_PORT = 80  # 443, 80, 88 or 8443 (port need to be 'open')
+WEBHOOK_LISTEN = '3.19.228.22'  # In some VPS you may need to put here the IP addr
+
+WEBHOOK_SSL_CERT = 'webhook_cert.pem'  # Path to the ssl certificate
+WEBHOOK_SSL_PRIV = 'webhook_pkey.pem'  # Path to the ssl private key
+
+WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
+WEBHOOK_URL_PATH = "/%s/" % (settings.TOKEN)
+
+logger = telebot.logger
+telebot.logger.setLevel(logging.INFO)
 
 bot = telebot.TeleBot(settings.TOKEN)
+
+class WebhookHandler(BaseHTTPRequestHandler):
+    server_version = "WebhookHandler/1.0"
+
+    def do_HEAD(self):
+        self.send_response(200)
+        self.end_headers()
+
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+
+    def do_POST(self):
+        if self.path == WEBHOOK_URL_PATH and \
+           'content-type' in self.headers and \
+           'content-length' in self.headers and \
+           self.headers['content-type'] == 'application/json':
+            json_string = self.rfile.read(int(self.headers['content-length']))
+
+            self.send_response(200)
+            self.end_headers()
+
+            update = telebot.types.Update.de_json(json_string)
+            bot.process_new_messages([update.message])
+        else:
+            self.send_error(403)
+            self.end_headers()
+
 
 def get_link(link, chat_id):
     link = link.split('/')
@@ -300,7 +344,17 @@ def choose(message, subject_name):
         bot.register_next_step_handler(message, choose)   
 
 
+try:
+	httpd = HTTPServer((WEBHOOK_LISTEN, WEBHOOK_PORT),
+		           WebhookHandler)
 
+	httpd.socket = ssl.wrap_socket(httpd.socket,
+		                       certfile=WEBHOOK_SSL_CERT,
+		                       keyfile=WEBHOOK_SSL_PRIV,
+		                       server_side=True)
 
-
-bot.infinity_polling()
+	httpd.serve_forever()
+except Exception as e:
+	bot.infinity_polling()
+	print(e)
+	print("webhook ishlamadi")
