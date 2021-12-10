@@ -5,6 +5,13 @@ from telebot import types
 import logging
 import ssl
 
+try:
+    # Python 2
+    from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+except ImportError:
+    # Python 3
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
 
 WEBHOOK_HOST = 'ip-172-31-23-118.us-east-2.compute.internal'
 WEBHOOK_PORT = 80  # 443, 80, 88 or 8443 (port need to be 'open')
