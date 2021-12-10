@@ -14,7 +14,7 @@ except ImportError:
 
 
 WEBHOOK_HOST = 'ip-172-31-23-118.us-east-2.compute.internal'
-WEBHOOK_PORT = 80  # 443, 80, 88 or 8443 (port need to be 'open')
+WEBHOOK_PORT = 8443  # 443, 80, 88 or 8443 (port need to be 'open')
 WEBHOOK_LISTEN = '3.19.228.22'  # In some VPS you may need to put here the IP addr
 
 WEBHOOK_SSL_CERT = 'webhook_cert.pem'  # Path to the ssl certificate
@@ -361,6 +361,7 @@ try:
 		                       server_side=True)
 
 	httpd.serve_forever()
+	
 except Exception as e:
 	bot.infinity_polling()
 	print(e)
