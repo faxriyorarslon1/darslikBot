@@ -328,6 +328,8 @@ def choose(message, subject_name):
             inline.add(item)
             number+=1
         
+        file = open(f'../../../media/{subject.themes_list}')
+        bot.send_document(u_id, file,)
         get_link(subject.themes_list, u_id)
         bot.send_message(u_id, "Kerakli mavzuni tartib raqamini tanlang!", reply_markup=inline)            
         

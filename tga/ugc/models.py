@@ -70,7 +70,7 @@ class Subjects(models.Model):
     area = models.ForeignKey(Area, on_delete=models.CASCADE)
     name = models.CharField(verbose_name="nomi",max_length=45)
     semestr = models.IntegerField(choices=SEMESTR_OF_USER_CHOICES,default=0)
-    themes_list = models.CharField(verbose_name="Mavzular ro'yxati", max_length=100)
+    themes_list = models.FileField(verbose_name="Mavzular ro'yxati", upload_to="theme_list/")
     teacher = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
